@@ -18,9 +18,6 @@ class Playfair_Cipher {
 		void make_pair_of_chars();
 		void show_pair_of_chars();
 		std::pair<std::pair<int, int>, std::pair<int, int>> getRowColumn(char, char);
-		std::pair<int, std::pair<int, int>> row_check(char, char);
-		std::pair<int, std::pair<int, int>> column_check(char, char);
-		std::pair<int, std::pair<int, int>> diagonal_check(char, char);
 		std::string Encryption();
 		std::string Decryption();
 };
@@ -85,8 +82,16 @@ void Playfair_Cipher::show_table() {
 }
 
 void Playfair_Cipher::make_pair_of_chars() {
-	std::string message = this->message;
-	for(int i = 0; i < (this->message_length); i++) {
+	std::string message = "";
+	// remove space from message
+	for(int i = 0; i < this->message_length; i++) {
+		if(this->message[i] != ' ')
+			message.push_back(this->message[i]);
+	}
+
+	int len = message.length();
+
+	for(int i = 0; i < len; i++) {
 		 if(message[i] != message[i+1]) {
 			// chars are different
 		 	if(message[i+1] == '\0') {
@@ -162,7 +167,7 @@ std::string Playfair_Cipher::Encryption() {
 			this->encrypted_text.push_back(this->table[ch2_row][ch1_col]);
 		}
 	}
-	std::cout << this->encrypted_text << std::endl;
+	return this->encrypted_text;
 }
 
 std::string Playfair_Cipher::Decryption() {
@@ -172,15 +177,16 @@ std::string Playfair_Cipher::Decryption() {
 int main(int argc, char const *argv[]) {
 
 	std::string key = "Black Hole";
-	std::string message = "Dfi  dfd";
-	std::string cipher_text = "";
+	std::string message = "Bangladesh";
+	std::string cipher_text = "LCPIACFDQE";
 
 	Playfair_Cipher *playfair_cipher = new Playfair_Cipher(key, message, cipher_text);
 	playfair_cipher->make_table();
 	playfair_cipher->show_table();
 	playfair_cipher->make_pair_of_chars();
 	playfair_cipher->show_pair_of_chars();
-	playfair_cipher->Encryption();
+	
+	std::cout << playfair_cipher->Encryption() << std::endl;
 
 	return 0;
 }
