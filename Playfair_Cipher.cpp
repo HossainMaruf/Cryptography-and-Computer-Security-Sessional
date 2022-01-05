@@ -6,7 +6,7 @@
 class Playfair_Cipher {
 	char table[ROW][COLUMN];
 	std::string key, message, cipher_text;
-	std::string encrypted_text = "", decrypted_text = "";
+	std::string encrypted_text = "", descrypted_text = "";
 	int key_length, message_length, cipher_length;
 	bool key_char_exist[26] = {false}, message_char_exist[26] = {false};
 	std::vector<std::pair<char,char>> vec;
@@ -84,9 +84,12 @@ void Playfair_Cipher::show_table() {
 void Playfair_Cipher::make_pair_of_chars() {
 	std::string message = "";
 	// remove space from message
-	for(int i = 0; i < this->message_length; i++) {
-		if(this->message[i] != ' ')
-			message.push_back(this->message[i]);
+	for(int i = 0; (this->message[i] != '\0'); i++) {
+		if(this->message[i] != ' ') {
+			if(toupper(this->message[i]) == 'J')
+				message.push_back('I');
+			else message.push_back(this->message[i]);
+		}
 	}
 
 	int len = message.length();
@@ -171,14 +174,60 @@ std::string Playfair_Cipher::Encryption() {
 }
 
 std::string Playfair_Cipher::Decryption() {
-	
+	// clear the previous vector
+	this->vec.clear();
+	// set message to cipher text
+	this->message = this->encrypted_text;
+	// this->message = this->cipher_text;
+	make_pair_of_chars();
+	// show_pair_of_chars();
+
+	// coordinate holding variable for pair of chars
+	std::pair<std::pair<int, int>, std::pair<int, int>> coordinate;
+	// coordinates variable for holding separate location
+	int ch1_row, ch1_col, ch2_row, ch2_col;
+	// iterate through the pair of message
+	for(int i = 0; i < vec.size(); i++) {
+		// get the coordinate of each char
+		coordinate  = getRowColumn(vec[i].first, vec[i].second);
+		ch1_row = coordinate.first.first;
+		ch1_col = coordinate.first.second;
+		ch2_row = coordinate.second.first;
+		ch2_col = coordinate.second.second;
+		if(ch1_row == ch2_row) {
+			 // chars are in same row 
+			// std::cout << "Same Row" << std::endl;
+			int ch1_prev_col = (ch1_col == 0) ? (COLUMN - 1) : (ch1_col - 1);
+			int ch2_prev_col = (ch2_col == 0) ? (COLUMN - 1) : (ch2_col - 1);
+
+			this->descrypted_text.push_back(this->table[ch1_row][ch1_prev_col]);
+			this->descrypted_text.push_back(this->table[ch1_row][ch2_prev_col]);
+
+		} else if(ch1_col == ch2_col) {
+			// chars are in same column
+			// std::cout << "Same col" << std::endl;
+			int ch1_prev_row = (ch1_row == 0) ? (ROW - 1) : (ch1_row - 1);
+			int ch2_prev_row = (ch2_row == 0) ? (ROW - 1) : (ch2_row - 1);
+
+			this->descrypted_text.push_back(this->table[ch1_prev_row][ch1_col]);
+			this->descrypted_text.push_back(this->table[ch2_prev_row][ch1_col]);
+
+		} else {
+			// chars are in diagonal
+			// std::cout << "Diagonal" << std::endl;
+			this->descrypted_text.push_back(this->table[ch1_row][ch2_col]);
+			this->descrypted_text.push_back(this->table[ch2_row][ch1_col]);
+		}
+	}
+	return this->descrypted_text;	
 }
 
 int main(int argc, char const *argv[]) {
 
 	std::string key = "Black Hole";
-	std::string message = "Bangladesh";
-	std::string cipher_text = "LCPIACFDQE";
+	std::string message = "I";
+	// std::string cipher_text = "LCPIACFDQE";
+	std::string cipher_text = "IEFTACRNDI";
 
 	Playfair_Cipher *playfair_cipher = new Playfair_Cipher(key, message, cipher_text);
 	playfair_cipher->make_table();
@@ -187,6 +236,7 @@ int main(int argc, char const *argv[]) {
 	playfair_cipher->show_pair_of_chars();
 	
 	std::cout << playfair_cipher->Encryption() << std::endl;
+	std::cout << playfair_cipher->Decryption() << std::endl;
 
 	return 0;
 }
