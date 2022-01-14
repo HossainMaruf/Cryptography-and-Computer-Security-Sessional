@@ -6,8 +6,8 @@
 class Playfair_Cipher {
 	char table[ROW][COLUMN];
 	std::string key, message, cipher_text;
-	std::string encrypted_text = "", descrypted_text = "";
 	int key_length, message_length, cipher_length;
+	std::string encrypted_text = "", descrypted_text = "";
 	bool key_char_exist[26] = {false}, message_char_exist[26] = {false};
 	std::vector<std::pair<char,char>> vec;
 	std::map<char, std::pair<int, int>> row_column;
