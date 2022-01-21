@@ -4,34 +4,29 @@
 #define COLUMN 5
 
 class Playfair_Cipher {
-	char table[ROW][COLUMN];
-	std::string key, message, cipher_text;
+	char IorJ, table[ROW][COLUMN];
+	std::string key, message;
 	int key_length, message_length, cipher_length;
 	std::string encrypted_text = "", descrypted_text = "";
 	bool key_char_exist[26] = {false}, message_char_exist[26] = {false};
 	std::vector<std::pair<char,char>> vec;
 	std::map<char, std::pair<int, int>> row_column;
 	public:
-		Playfair_Cipher(std::string, std::string, std::string);
+		Playfair_Cipher(std::string);
 		void make_table();
 		void show_table();
-		void make_pair_of_chars();
+		void make_pair_of_chars(const std::string);
 		void show_pair_of_chars();
 		std::pair<std::pair<int, int>, std::pair<int, int>> getRowColumn(char, char);
 		std::string Encryption();
-		std::string Decryption();
+		std::string Decryption(std::string);
 };
 
 
-Playfair_Cipher::Playfair_Cipher(std::string key, std::string message, std::string cipher_text) {
+Playfair_Cipher::Playfair_Cipher(std::string key) {
 	this->key = key;
 	this->key_length = key.length();
-	this->message = message;
-	this->message_length = message.length();
-	this->cipher_text = cipher_text;
-	this->cipher_length = cipher_text.length();
 }
-
 
 void Playfair_Cipher::make_table() {
 	// store the key characters
@@ -50,22 +45,34 @@ void Playfair_Cipher::make_table() {
 			// Letter I and J will be placed in same location
 			// char I state will be placed on Index-8
 			// char J state will be placed on Index-9
-			if(ch == 'I') this->key_char_exist[9] = true;
-			if(ch == 'J') this->key_char_exist[8] = true;
+			if(ch == 'I') {
+				this->IorJ = ch; // first occurance of I or J
+				this->key_char_exist[9] = true;
+			}
+			if(ch == 'J') {
+				this->IorJ = ch; // first occurance of I or J
+				this->key_char_exist[8] = true;
+			}
 			if(j == COLUMN-1) j=0, i++; 
 			else j++;
 		}
 	}
-	// fill up with ramaining letter
+	// fill up with remaining letter
 	for(char c = 'A'; c <= 'Z'; c++) {
 		if(!key_char_exist[c % 65]) {
 			this->key_char_exist[c % 65] = true;
 			this->table[i][j] = c;
-			// same logic for here to map
+			// same logic for keep location tracking
 			this->row_column.insert({c, {i, j}}); 
-			// same logic for here
-			if(c == 'I') this->key_char_exist[9] = true;
-			if(c == 'J') this->key_char_exist[8] = true;
+			// same logic for i and j placing
+			if(c == 'I') {
+				this->IorJ = c; // first occurance of I or J
+				this->key_char_exist[9] = true;
+			}
+			if(c == 'J') {
+				this->IorJ = c; // first occurance of I or J
+				this->key_char_exist[8] = true;
+			}
 			if(j == COLUMN-1) j=0, i++;
 			else j++;
 		}
@@ -81,14 +88,12 @@ void Playfair_Cipher::show_table() {
 	}
 }
 
-void Playfair_Cipher::make_pair_of_chars() {
+void Playfair_Cipher::make_pair_of_chars(const std::string m) {
 	std::string message = "";
 	// remove space from message
-	for(int i = 0; (this->message[i] != '\0'); i++) {
-		if(this->message[i] != ' ') {
-			if(toupper(this->message[i]) == 'J')
-				message.push_back('I');
-			else message.push_back(this->message[i]);
+	for(int i = 0; (m[i] != '\0'); i++) {
+		if(m[i] != ' ') {
+			message.push_back(toupper(m[i]));
 		}
 	}
 
@@ -97,10 +102,11 @@ void Playfair_Cipher::make_pair_of_chars() {
 	for(int i = 0; i < len; i++) {
 		 if(message[i] != message[i+1]) {
 			// chars are different
-		 	if(message[i+1] == '\0') {
+		 	if(message[i+1] == '\0' || (message[i]=='I' && message[i+1]=='J') || (message[i]=='J' && message[i+1]=='I')) {
 		 		// if the second char is terminating char
 		 		this->vec.push_back({toupper(message[i]), 'x'});
-		 		break;
+		 		if(message[i+1] == '\0') break;
+		 		else continue;
 		 	}
 		 	this->vec.push_back({toupper(message[i]), toupper(message[i+1])});
 		 	i++;
@@ -122,11 +128,11 @@ std::pair<std::pair<int, int>, std::pair<int, int>> Playfair_Cipher::getRowColum
 	// code for filler letter
 	if(ch2 == 'x') ch2 = toupper(ch2);
 	// find ch1 row and column
-	auto itr1 = this->row_column.find(ch1);
+	auto itr1 = this->row_column.find((ch1 == 'I' || ch1 == 'J') ? (this->IorJ) : ch1);
 	int ch1_row = itr1->second.first, ch1_col = itr1->second.second;
 
 	// find ch2 row and column
-	auto itr2 = this->row_column.find(ch2);
+	auto itr2 = this->row_column.find((ch2 == 'I' || ch2 == 'J') ? (this->IorJ) : ch2);
 	int ch2_row = itr2->second.first, ch2_col = itr2->second.second;
 
 	return {{ch1_row, ch1_col}, {ch2_row, ch2_col}};
@@ -173,21 +179,20 @@ std::string Playfair_Cipher::Encryption() {
 	return this->encrypted_text;
 }
 
-std::string Playfair_Cipher::Decryption() {
+std::string Playfair_Cipher::Decryption(std::string cipher_text) {
 	// clear the previous vector
 	this->vec.clear();
 	// set message to cipher text
-	this->message = this->encrypted_text;
-	// this->message = this->cipher_text;
-	make_pair_of_chars();
-	// show_pair_of_chars();
+	this->message = cipher_text;
+	make_pair_of_chars(cipher_text);
+	show_pair_of_chars();
 
 	// coordinate holding variable for pair of chars
 	std::pair<std::pair<int, int>, std::pair<int, int>> coordinate;
 	// coordinates variable for holding separate location
 	int ch1_row, ch1_col, ch2_row, ch2_col;
 	// iterate through the pair of message
-	for(int i = 0; i < vec.size(); i++) {
+	for(unsigned int i = 0; i < vec.size(); i++) {
 		// get the coordinate of each char
 		coordinate  = getRowColumn(vec[i].first, vec[i].second);
 		ch1_row = coordinate.first.first;
@@ -224,19 +229,23 @@ std::string Playfair_Cipher::Decryption() {
 
 int main(int argc, char const *argv[]) {
 
-	std::string key = "Black Hole";
-	std::string message = "I";
-	// std::string cipher_text = "LCPIACFDQE";
-	std::string cipher_text = "IEFTACRNDI";
+	// std::string key = "Black Hole";
+	std::string key = "student";
+	std::string message = "Maruf Hossain";
 
-	Playfair_Cipher *playfair_cipher = new Playfair_Cipher(key, message, cipher_text);
+	Playfair_Cipher *playfair_cipher = new Playfair_Cipher(key);
+	
+	std::cout << "Key: " << key << std::endl;
+	std::cout << "Message: " << message << std::endl;
+
 	playfair_cipher->make_table();
 	playfair_cipher->show_table();
-	playfair_cipher->make_pair_of_chars();
+	playfair_cipher->make_pair_of_chars(message);
 	playfair_cipher->show_pair_of_chars();
-	
-	std::cout << playfair_cipher->Encryption() << std::endl;
-	std::cout << playfair_cipher->Decryption() << std::endl;
+	std::string encrypted_text = playfair_cipher->Encryption();
+	std::cout << "Encryption: " << encrypted_text << std::endl;
+	std::string decrypted_text = playfair_cipher->Decryption(encrypted_text);
+	std::cout << "Decryption: " << decrypted_text << std::endl;
 
 	return 0;
 }
