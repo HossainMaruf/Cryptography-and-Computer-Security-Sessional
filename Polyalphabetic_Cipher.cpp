@@ -18,7 +18,7 @@ class PolyalphabeticCipher {
 
 PolyalphabeticCipher::PolyalphabeticCipher() {
 	for(int i = 0; i < TOTAL_CHAR; i++) {
-		printf("(%c, %d)\n", SMALL_FIRST + i, i);
+		printf("(%c, %d) ", SMALL_FIRST + i, i);
 	}
 	std::cout << std::endl;
 }
@@ -29,7 +29,7 @@ std::string PolyalphabeticCipher::generateRandomKey() {
 	std::string key = "";
 	// generate the alphabet
 	for (unsigned int i = SMALL_FIRST; i <= SMALL_LAST; i++) {
-		key.push_back(i);
+		key.push_back(i); // abcd------xyz
 	}
 	// we need to suffle them
 	std::random_shuffle(key.begin(), key.end());
@@ -100,10 +100,12 @@ std::string PolyalphabeticCipher::Decryption(std::string cipher_text) {
 
 int main(int argc, char const *argv[])
 {
-	std::string message = "Maruf Hossain is a student";
 
 	PolyalphabeticCipher polyalphabetic_cipher;
 
+	std::string message;
+	std::cout << "Enter message: ";
+	std::getline(std::cin, message);
 	std::string key = polyalphabetic_cipher.generateRandomKey();
 
 	std::cout << "Key: " << key << std::endl << "Numerical Key: " << std::endl;

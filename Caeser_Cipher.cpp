@@ -28,7 +28,7 @@ void CaeserCipher::makeTable(int shifted_length) {
 
 void CaeserCipher::showTable() {
 	for (int i = 0; i < TOTAL_CHAR; i++) {
-		printf("(%c, %c)\n", (SMALL_FIRST + i), (SMALL_FIRST + this->vec[i]));
+		printf("(%c, %c) ", (SMALL_FIRST + i), (SMALL_FIRST + this->vec[i]));
 	}	
 }
 
@@ -66,13 +66,17 @@ std::string CaeserCipher::Decryption(std::string cipher_text) {
 
 int main(int argc, char const *argv[])
 {
-	std::string message = "Maruf Hossain";
-
-	CaeserCipher caeser_cipher;
-	caeser_cipher.makeTable(10);
-	caeser_cipher.showTable();
+	std::string message;
+	int k;
+	std::cout << "Enter message: ";
+	std::getline(std::cin, message);
+	std::cout << "Enter shift value: ";
+	std::cin >> k; 
 
 	std::cout << "Message: " << message << std::endl;
+	CaeserCipher caeser_cipher;
+	caeser_cipher.makeTable(k);
+	caeser_cipher.showTable();
 
 	std::string encrypted_text = caeser_cipher.Encryption(message);
 	std::cout << "Encryption: " << encrypted_text << std::endl;

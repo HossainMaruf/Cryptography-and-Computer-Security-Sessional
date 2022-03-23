@@ -32,12 +32,12 @@ void Playfair_Cipher::make_table() {
 	// store the key characters
 	int i = 0, j = 0;
 	std::string keyword = this->key;
-	for(char ch : keyword) {
+	for(char ch : keyword) { // student
 		ch = toupper(ch);
 		// store the character by checking the previous occurance
-		if(!isspace(ch) && (!this->key_char_exist[ch % 65])) {
+		if(!isspace(ch) && (!this->key_char_exist[ch - 65])) {
 			// char not exist so make it exist
-			this->key_char_exist[ch % 65] = true;
+			this->key_char_exist[ch - 65] = true;
 			// store the char in uppercase
 			this->table[i][j] = ch;
 			// keep track the location of this char
@@ -60,7 +60,7 @@ void Playfair_Cipher::make_table() {
 	// fill up with remaining letter
 	for(char c = 'A'; c <= 'Z'; c++) {
 		if(!key_char_exist[c % 65]) {
-			this->key_char_exist[c % 65] = true;
+			this->key_char_exist[c - 65] = true;
 			this->table[i][j] = c;
 			// same logic for keep location tracking
 			this->row_column.insert({c, {i, j}}); 
@@ -89,7 +89,7 @@ void Playfair_Cipher::show_table() {
 }
 
 void Playfair_Cipher::make_pair_of_chars(const std::string m) {
-	std::string message = "";
+	std::string message = ""; // MarufHossain
 	// remove space from message
 	for(int i = 0; (m[i] != '\0'); i++) {
 		if(m[i] != ' ') {
@@ -230,8 +230,12 @@ std::string Playfair_Cipher::Decryption(std::string cipher_text) {
 int main(int argc, char const *argv[]) {
 
 	// std::string key = "Black Hole";
-	std::string key = "student";
-	std::string message = "Maruf Hossain";
+	std::string key;
+	std::string message;
+	std::cout << "Enter message: ";
+	std::getline(std::cin, message);
+	std::cout << "Enter key: ";
+	std::getline(std::cin, key);
 
 	Playfair_Cipher *playfair_cipher = new Playfair_Cipher(key);
 	

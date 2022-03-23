@@ -43,7 +43,7 @@ void MonoalphabeticCipher::makeTable() {
 
 void MonoalphabeticCipher::showTable() {
 	for(auto itr = encrypt.begin(); itr != encrypt.end(); itr++)	{
-		std::cout << "(" << itr->first << "," << itr->second << ")" << std::endl;	
+		std::cout << "(" << itr->first << "," << itr->second << ")" << " ";	
 	}
 }
 
@@ -83,7 +83,9 @@ std::string MonoalphabeticCipher::Decryption(std::string cipher_text) {
 
 int main(int argc, char const *argv[])
 {
-	std::string message = "Maruf Hossain";
+	std::string message;
+	std::cout << "Enter message: ";
+	std::getline(std::cin, message);
 
 	MonoalphabeticCipher monoalphabetic_cipher;
 
